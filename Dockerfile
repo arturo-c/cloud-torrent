@@ -36,10 +36,12 @@ RUN set -ex \
 	&& patch -p2 -i /no-pic.patch \
 	&& ./make.bash \
 	&& mkdir -p $PACKAGE_DIR \
-	&& git clone https://$PACKAGE.git $PACKAGE_DIR \
-	&& cd $PACKAGE_DIR \
-	&& go build -ldflags "-X main.VERSION=$(git describe --abbrev=0 --tags)" -o /usr/local/bin/$NAME \
+
+WORKDIR $PACKAGE_DIR
+COPY . $PACKAGE_DIR
+
+RUN cd $PACKAGE_DIR && go build -ldflags "-X main.VERSION=$(git describe --abbrev=0 --tags)" -o /usr/local/bin/$NAME \
 	&& apk del .build-deps \
 	&& rm -rf /no-pic.patch $GOPATH /usr/local/go
-#run!
+
 ENTRYPOINT ["cloud-torrent"]

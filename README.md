@@ -10,6 +10,7 @@
 * Real-time updates
 * Mobile-friendly
 * Fast [content server](http://golang.org/pkg/net/http/#ServeContent)
+* External command run on task finished.
 
 See [Future Features here](#future-features)
 
@@ -43,6 +44,8 @@ $ docker run -d -p 3000:3000 -v /path/to/my/downloads:/downloads jpillora/cloud-
 
 ``` sh
 $ go get -v github.com/jpillora/cloud-torrent
+$ CGO_ENABLED=0 go build -o cloud-torrent -ldflags "-s -w -X main.VERSION=0.X.Y"
+# or simple `make'
 ```
 
 **VPS**
@@ -87,6 +90,7 @@ Heroku is no longer supported
 ```
 $ cloud-torrent --help
 
+
   Usage: cloud-torrent [options]
 
   Options:
@@ -109,6 +113,34 @@ $ cloud-torrent --help
     https://github.com/jpillora/cloud-torrent
 
 ```
+
+#### Config
+
+A copy of `cloud-torrent.json` is generated if `--config-path` is not specified, with default config as following content:
+```
+{
+  "AutoStart": true,
+  "DisableEncryption": false,
+  "DownloadDirectory": "/path/to/downloads",
+  "EnableUpload": true,
+  "EnableSeeding": false,
+  "IncomingPort": 50007,
+  "DoneCmd": ""
+}
+```
+
+#### About DoneCmd
+
+`DoneCmd` is an external command to be called when a task is finished, with infomation set as environment variables:
+
+```
+CLD_DIR=/path/to/download
+CLD_PATH=Torrent-Downloaded-File-OR-Dir
+CLD_SIZE=46578901
+CLD_FILECNT=1
+```
+Please noted that `CLD_PATH` will be a directory if the torrent contians more than one file, as `CLD_FILECNT` is stating the total number of files in the torrent.
+
 
 ### Future features
 
